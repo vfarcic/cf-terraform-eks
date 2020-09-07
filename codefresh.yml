@@ -1,0 +1,33 @@
+version: "1.0"
+stages:
+  - prepare
+  - apply
+steps:
+  main_clone:
+    title: Cloning repository
+    type: git-clone
+    repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
+    revision: "${{CF_BRANCH}}"
+    stage: prepare
+  init:
+    image: hashicorp/terraform:0.13.0
+    title: Initializing Terraform
+    stage: apply
+    commands:
+      - terraform init
+  plan:
+    image: hashicorp/terraform:0.13.0
+    title: Outputting Terraform plan
+    stage: apply
+    commands:
+      - terraform plan
+  apply:
+    image: hashicorp/terraform:0.13.0
+    title: Applying Terraform
+    stage: apply
+    commands:
+      - terraform apply -auto-approve 
+    when:
+      branch:
+        only:
+          - master

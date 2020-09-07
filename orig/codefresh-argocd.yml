@@ -1,0 +1,59 @@
+version: "1.0"
+stages:
+  - prepare
+  - apply
+  - apps
+steps:
+  main_clone:
+    title: Cloning repository
+    type: git-clone
+    repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
+    revision: "${{CF_BRANCH}}"
+    stage: prepare
+  auth:
+    image: alpine:3.12
+    title: Creating account.json
+    stage: prepare
+    commands:
+      - echo $ACCOUNT_JSON_CONTENT > account.json
+  init:
+    image: hashicorp/terraform:0.13.0
+    title: Initializing Terraform
+    stage: apply
+    commands:
+      - terraform init
+  plan:
+    image: hashicorp/terraform:0.13.0
+    title: Outputting Terraform plan
+    stage: apply
+    commands:
+      - terraform plan
+  apply:
+    image: hashicorp/terraform:0.13.0
+    title: Applying Terraform
+    stage: apply
+    commands:
+      - terraform apply -auto-approve 
+    when:
+      branch:
+        only:
+          - master
+  vars:
+    image: hashicorp/terraform:0.13.0
+    title: Creating variables
+    stage: apps
+    commands:
+      - export CLUSTER_NAME=$(terraform output cluster_name)
+      - export PROJECT_ID=$(terraform output project_id)
+      - export REGION=$(terraform output region)
+      - export KUBECONFIG=$PWD/kubeconfig
+      - cf_export CLUSTER_NAME PROJECT_ID REGION KUBECONFIG
+  apply-app:
+    image: vfarcic/gke-helm-kubectl:308.0.0
+    title: Applying apps
+    stage: apps
+    commands:
+      - gcloud auth activate-service-account --key-file=account.json
+      - gcloud container clusters get-credentials ${CLUSTER_NAME} --project ${PROJECT_ID} --region ${REGION}
+      - kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud/deploy.yaml
+      - helm upgrade --install argocd argo-cd --repo https://argoproj.github.io/argo-helm --namespace argocd --create-namespace --version 1.6.2 --values argocd-values.yaml --wait
