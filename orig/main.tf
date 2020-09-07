@@ -6,6 +6,7 @@ terraform {
   backend "s3" {
     bucket = "CHANGE_BUCKET"
     key    = "terraform/state"
+    region = "us-east-1"
   }
 }
 
