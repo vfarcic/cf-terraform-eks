@@ -2,6 +2,7 @@ version: "1.0"
 stages:
   - prepare
   - apply
+  - apps
 steps:
   main_clone:
     title: Cloning repository
@@ -9,17 +10,18 @@ steps:
     repo: "${{CF_REPO_OWNER}}/${{CF_REPO_NAME}}"
     revision: "${{CF_BRANCH}}"
     stage: prepare
+  auth:
+    image: alpine:3.12
+    title: Creating account.json
+    stage: prepare
+    commands:
+      - echo $ACCOUNT_JSON_CONTENT > account.json
   init:
     image: hashicorp/terraform:0.13.0
     title: Initializing Terraform
     stage: apply
     commands:
       - terraform init
-  plan:
-    image: hashicorp/terraform:0.13.0
-    title: Outputting Terraform plan
-    stage: apply
-    commands:
       - terraform plan
   apply:
     image: hashicorp/terraform:0.13.0
@@ -27,6 +29,23 @@ steps:
     stage: apply
     commands:
       - terraform apply -auto-approve 
+      - export CLUSTER_NAME=$(terraform output cluster_name)
+      - export REGION=$(terraform output region)
+      - cf_export CLUSTER_NAME REGION
+    when:
+      branch:
+        only:
+          - master
+  apply_app:
+    image: vfarcic/aws-helm-kubectl:2.0.47
+    title: Applying apps
+    stage: apps
+    commands:
+      - chmod +x get-kubeconfig.sh && ./get-kubeconfig.sh $CLUSTER_NAME $REGION
+      - export KUBECONFIG=kubeconfig.yaml
+      - kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/aws/deploy.yaml
+      - sleep 1
+      - helm upgrade --install argocd argo-cd --repo https://argoproj.github.io/argo-helm --namespace argocd --create-namespace --version 1.6.2 --values argocd-values.yaml --wait
     when:
       branch:
         only:

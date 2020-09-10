@@ -3,7 +3,7 @@ if [ "$1" == "" ]; then
   exit
 fi
 
-export KUBECONFIG=$PWD/kubeconfig
+export KUBECONFIG=$PWD/kubeconfig.yaml
 
 aws eks update-kubeconfig --name $1 --region $2
 

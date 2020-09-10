@@ -22,11 +22,6 @@ steps:
     stage: apply
     commands:
       - terraform init
-  plan:
-    image: hashicorp/terraform:0.13.0
-    title: Outputting Terraform plan
-    stage: apply
-    commands:
       - terraform plan
   apply:
     image: hashicorp/terraform:0.13.0
@@ -34,26 +29,24 @@ steps:
     stage: apply
     commands:
       - terraform apply -auto-approve 
+      - export CLUSTER_NAME=$(terraform output cluster_name)
+      - export REGION=$(terraform output region)
+      - cf_export CLUSTER_NAME REGION
     when:
       branch:
         only:
           - master
-  vars:
-    image: hashicorp/terraform:0.13.0
-    title: Creating variables
-    stage: apps
-    commands:
-      - export CLUSTER_NAME=$(terraform output cluster_name)
-      - export PROJECT_ID=$(terraform output project_id)
-      - export REGION=$(terraform output region)
-      - export KUBECONFIG=$PWD/kubeconfig
-      - cf_export CLUSTER_NAME PROJECT_ID REGION KUBECONFIG
-  apply-app:
-    image: vfarcic/gke-helm-kubectl:308.0.0
+  apply_app:
+    image: vfarcic/aws-helm-kubectl:2.0.47
     title: Applying apps
     stage: apps
     commands:
-      - gcloud auth activate-service-account --key-file=account.json
-      - gcloud container clusters get-credentials ${CLUSTER_NAME} --project ${PROJECT_ID} --region ${REGION}
-      - kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud/deploy.yaml
+      - chmod +x get-kubeconfig.sh && ./get-kubeconfig.sh $CLUSTER_NAME $REGION
+      - export KUBECONFIG=kubeconfig.yaml
+      - kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/aws/deploy.yaml
+      - sleep 1
       - helm upgrade --install argocd argo-cd --repo https://argoproj.github.io/argo-helm --namespace argocd --create-namespace --version 1.6.2 --values argocd-values.yaml --wait
+    when:
+      branch:
+        only:
+          - master
