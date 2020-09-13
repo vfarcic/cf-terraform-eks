@@ -17,18 +17,6 @@ steps:
     commands:
       - terraform init
       - terraform plan
-  delete_ingress:
-    image: vfarcic/aws-helm-kubectl:2.0.47
-    title: Destroying apps
-    stage: apply
-    commands:
-      - chmod +x get-kubeconfig.sh && ./get-kubeconfig.sh $CLUSTER_NAME $REGION
-      - export KUBECONFIG=kubeconfig.yaml
-      - kubectl delete --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/aws/deploy.yaml
-    when:
-      condition:
-        all:
-          destroy: '"${{DESTROY}}" == "true"'
   apply:
     image: hashicorp/terraform:0.13.0
     title: Applying Terraform
