@@ -38,7 +38,7 @@ steps:
     commands:
       - chmod +x get-kubeconfig.sh && ./get-kubeconfig.sh $CLUSTER_NAME $REGION
       - export KUBECONFIG=kubeconfig.yaml
-      - kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/aws/deploy.yaml
+      - kubectl apply --filename https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.35.0/deploy/static/provider/aws/deploy.yaml
       - sleep 60
       - helm upgrade --install argocd argo-cd --repo https://argoproj.github.io/argo-helm --namespace argocd --create-namespace --version 1.6.2 --values argocd-values.yaml --wait
     when:
