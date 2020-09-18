@@ -9,5 +9,5 @@ aws eks update-kubeconfig --name $1 --region $2
 
 echo "Execute the following command to use the newly created Kube config:"
 echo
-echo "export KUBECONFIG=kubeconfig.yaml"
+echo "export KUBECONFIG=$PWD/kubeconfig.yaml"
 
