@@ -48,3 +48,4 @@ steps:
       branch:
         only:
           - master
+
