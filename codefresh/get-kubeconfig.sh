@@ -14,6 +14,12 @@ kubectl apply --filename codefresh/create-cluster.yaml
 
 export CURRENT_CONTEXT=$(kubectl config current-context)
 
+set +e
+
+codefresh delete cluster $CURRENT_CONTEXT
+
+set -e
+
 codefresh create cluster \
     --kube-context $CURRENT_CONTEXT \
     --serviceaccount codefresh \
