@@ -6,3 +6,4 @@ server:
   extraArgs:
     insecure: true
 installCRDs: false
+
