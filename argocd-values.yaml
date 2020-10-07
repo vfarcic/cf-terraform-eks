@@ -4,5 +4,5 @@ server:
     hosts:
     - argocd.54.198.102.81.xip.io
   extraArgs:
-    insecure: true
+  - --insecure
 installCRDs: false
