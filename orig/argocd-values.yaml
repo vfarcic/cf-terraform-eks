@@ -4,5 +4,5 @@ server:
     hosts:
     - acme.com
   extraArgs:
-    insecure: true
+  - --insecure
 installCRDs: false
