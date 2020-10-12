@@ -1,3 +1,5 @@
+unset INGRESS_HOST
+
 while [ "$INGRESS_HOST" = "" ]; do
     export INGRESS_HOSTNAME=$(kubectl \
         --namespace ingress-nginx \
