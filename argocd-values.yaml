@@ -2,7 +2,7 @@ server:
   ingress:
     enabled: true
     hosts:
-    - argocd.3.95.75.245.xip.io
+    - argocd.35.171.229.16.xip.io
   extraArgs:
   - --insecure
 installCRDs: false
