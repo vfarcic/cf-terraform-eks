@@ -10,12 +10,12 @@ variable "cluster_name" {
 
 variable "k8s_version" {
   type = string
-  default = "CHANGE_VERSION"
+  default = "1.18"
 }
 
 variable "release_version" {
   type    = string
-  default = "CHANGE_RELEASE"
+  default = "1.18.8-20201007"
 }
 
 variable "min_node_count" {
