@@ -2,10 +2,7 @@ server:
   ingress:
     enabled: true
     hosts:
-    - argocd.184.72.187.41.xip.io
+    - argocd.54.87.91.254.xip.io
   extraArgs:
   - --insecure
 installCRDs: false
-controller:
-  args:
-    appResyncPeriod: 30
