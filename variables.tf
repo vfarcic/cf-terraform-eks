@@ -35,6 +35,6 @@ variable "machine_type" {
 
 variable "destroy" {
   type    = bool
-  default = false
+  default = true
 }
 
