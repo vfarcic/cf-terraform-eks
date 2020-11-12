@@ -30,7 +30,7 @@ variable "max_node_count" {
 
 variable "machine_type" {
   type    = string
-  default = "t2.small"
+  default = "t2.medium"
 }
 
 variable "destroy" {
