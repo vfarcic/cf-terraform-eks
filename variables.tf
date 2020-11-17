@@ -15,7 +15,7 @@ variable "k8s_version" {
 
 variable "release_version" {
   type    = string
-  default = "1.17.11-20201007"
+  default = "1.17.12-20201112"
 }
 
 variable "min_node_count" {
